@@ -1,0 +1,2 @@
+[default.databases.blogs]
+url = "db/blogs.sqlite"
