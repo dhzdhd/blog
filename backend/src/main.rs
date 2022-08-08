@@ -2,8 +2,10 @@ mod database;
 mod model;
 
 use database::Blogs;
+use model::{BlogPostRequest, Response};
 use rocket::serde::json::Json;
-use rocket_db_pools::Database;
+use rocket_db_pools::sqlx::{self};
+use rocket_db_pools::{Connection, Database};
 
 #[macro_use]
 extern crate rocket;
@@ -28,17 +30,25 @@ async fn index() -> &'static str {
 }
 
 #[post("/blogs", format = "json", data = "<info>")]
-async fn create_blog(info: &str) -> Json<i32> {
-    Json::from(2)
+async fn create_blog(
+    info: Json<BlogPostRequest<'_>>,
+    mut db: Connection<Blogs>,
+) -> Json<Response<'_>> {
+    sqlx::query("INSERT INTO blogs VALUES()")
+        .execute(&mut *db)
+        .await
+        .unwrap();
+
+    Json::from(Response::new("Success", 200))
 }
 
 #[get("/blogs/<id>", format = "json")]
-async fn get_blog_int<'a>(id: i32) -> &'static str {
-    "e"
+async fn get_blog_int<'a>(id: i32) -> Json<Response<'a>> {
+    Json::from(Response::new("hello", 200))
 }
 
 #[get("/blogs/<id>", rank = 2)]
-async fn get_blog_str<'a>(id: &str) -> &'static str {
+async fn get_blog_str(id: &str) -> &'static str {
     "ID parameter has to be an integer only!"
 }
 

@@ -17,7 +17,7 @@ impl Component for Footer {
         html! {
           <ybc::Footer classes={classes!("has-background-dark")}>
             <ybc::Content>
-                {"hello"}
+                {"byeeeee"}
             </ybc::Content>
           </ybc::Footer>
         }
