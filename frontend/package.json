@@ -1,15 +1,22 @@
 {
+  "name": "@example/blog",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "dotnet fable watch src/App --run webpack serve",
-    "build": "dotnet fable       src/App --run webpack --mode production"
-  },
-  "dependencies": {
-    "webpack": "^5.11.0",
-    "webpack-cli": "^4.2.0",
-    "webpack-dev-server": "^3.11.0"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "devDependencies": {
-    "windicss-webpack-plugin": "^1.7.5"
+    "@astrojs/preact": "^1.0.0",
+    "@astrojs/svelte": "^1.0.0",
+    "astro": "^1.0.1",
+    "sass": "^1.54.4",
+    "svelte": "^3.46.4"
+  },
+  "dependencies": {
+    "preact": "^10.7.3"
   }
 }
