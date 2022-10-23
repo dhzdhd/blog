@@ -125,14 +125,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
-name = "backend"
-version = "0.1.0"
-dependencies = [
- "rocket",
- "rocket_db_pools",
-]
-
-[[package]]
 name = "base64"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -157,6 +149,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0bf7fe51849ea569fd452f37822f606a5cabb684dc918707a0193fd4664ff324"
 dependencies = [
  "generic-array",
+]
+
+[[package]]
+name = "blog"
+version = "0.1.0"
+dependencies = [
+ "rocket",
+ "rocket_db_pools",
+ "serde",
 ]
 
 [[package]]
