@@ -1,7 +1,11 @@
 use blog;
+use dotenv::dotenv;
 use rocket;
 
 #[rocket::main]
-async fn main() {
-    let _ = blog::rocket().launch().await;
+async fn main() -> Result<(), rocket::Error> {
+    dotenv().ok();
+
+    blog::rocket().launch().await?;
+    Ok(())
 }

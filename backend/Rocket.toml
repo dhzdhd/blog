@@ -1,2 +1,2 @@
-[default.databases.blogs]
-url = "db/blogs.sqlite"
+[default.databases.blog]
+url = "postgres://postgres:postgres@localhost:5432/blog"
