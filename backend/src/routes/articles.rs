@@ -2,14 +2,15 @@ use crate::{database::articles::Articles, models::article::Article};
 use rocket::serde::json::Json;
 use rocket_db_pools::sqlx::Row;
 use rocket_db_pools::{sqlx::query, Connection};
+use uuid::Uuid;
 
 #[get("/articles")]
-pub fn get_all_articles<'a>() -> Json<Vec<Article>> {
+pub fn get_all_articles() -> Json<Vec<Article>> {
     return Json(vec![Article::new("".to_string(), "".to_string())]);
 }
 
 #[get("/articles/<id>")]
-pub async fn get_one_article<'a>(mut db: Connection<Articles>, id: &str) -> Option<Json<Article>> {
+pub async fn get_one_article(mut db: Connection<Articles>, id: &str) -> Option<Json<Article>> {
     let response = query("SELECT id, title, text FROM articles WHERE id=?")
         .bind(id)
         .fetch_one(&mut *db)
@@ -20,6 +21,16 @@ pub async fn get_one_article<'a>(mut db: Connection<Articles>, id: &str) -> Opti
 }
 
 #[post("/articles", format = "json", data = "<article>")]
-pub fn post_one_article(mut db: Connection<Articles>, article: Json<Article>) -> &'static str {
-    ""
+pub async fn post_one_article(mut db: Connection<Articles>, article: Json<Article>) -> String {
+    let response = query("INSERT INTO articles (id, title, content) VALUES (?, ?, ?)")
+        .bind(Uuid::new_v4().to_string())
+        .bind(article.0.title)
+        .bind(article.0.content)
+        .execute(&mut *db)
+        .await;
+
+    match response {
+        Ok(_) => "Successful".to_string(),
+        Err(err) => err.to_string(),
+    }
 }

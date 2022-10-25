@@ -8,6 +8,10 @@ rocket = { version = "0.5.0-rc.2", features = ["json", "secrets"] }
 serde = { version = "1.0", features = ["derive"] }
 dotenv = "0.15.0"
 
+[dependencies.uuid]
+version = "1.2.1"
+features = ["v4", "fast-rng", "macro-diagnostics"]
+
 [dependencies.rocket_db_pools]
 version = "0.1.0-rc.2"
 features = ["sqlx_postgres"]

@@ -1,6 +1,6 @@
 CREATE TABLE
     articles (
-        id TEXT PRIMARY KEY,
-        title TEXT UNIQUE,
-        content TEXT
+        id VARCHAR PRIMARY KEY,
+        title VARCHAR UNIQUE NOT NULL,
+        content VARCHAR NOT NULL
     );
