@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Routes.Home exposing (..)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav
@@ -7,7 +7,7 @@ import Html.Attributes exposing (class, href)
 import Url
 
 
-type alias Model =
+type alias HomeModel =
     { key : Nav.Key
     , url : Url.Url
     }
@@ -19,7 +19,7 @@ type Msg
     | UrlChanged Url.Url
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> HomeModel -> ( HomeModel, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
@@ -39,18 +39,18 @@ update msg model =
             )
 
 
-init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init : () -> Url.Url -> Nav.Key -> ( HomeModel, Cmd Msg )
 init () url key =
     ( { key = key, url = url }, Cmd.none )
 
 
-view : Model -> Document Msg
+view : HomeModel -> Document Msg
 view model =
     { title = "Blog"
     , body =
         [ header [ class "bg-blue-900 h-20" ]
             [ nav [ class "flex justify-center items-center h-20" ]
-                [ a [ class "decoration-none text-white hover:text-gray-100 text-5xl", href "/blog" ] [ text "Blog" ]
+                [ a [ class "decoration-none text-white hover:text-gray-100 text-5xl", href "/home" ] [ text "Blog" ]
                 ]
             ]
         , main_ [ class "flex flex-col bg-blue-900" ]
@@ -59,15 +59,3 @@ view model =
         , footer [] []
         ]
     }
-
-
-main : Program () Model Msg
-main =
-    Browser.application
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = \_ -> Sub.none
-        , onUrlRequest = UrlRequested
-        , onUrlChange = UrlChanged
-        }
