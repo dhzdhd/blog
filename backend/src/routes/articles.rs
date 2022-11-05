@@ -5,17 +5,34 @@ use rocket_db_pools::{sqlx::query, Connection};
 use uuid::Uuid;
 
 #[get("/articles")]
-pub fn get_all_articles() -> Json<Vec<Article>> {
-    return Json(vec![Article::new("".to_string(), "".to_string())]);
+pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<Vec<Article>>> {
+    let response = query("SELECT id, title, text FROM articles WHERE id=?")
+        .fetch_all(&mut *db)
+        .await
+        .and_then(|r| {
+            Ok(Json(
+                r.into_iter()
+                    .map(|r| Article::new(r.try_get(1).unwrap(), r.try_get(2).unwrap()))
+                    .collect::<Vec<Article>>(),
+            ))
+            // Ok(Json(Article::new(r.try_get(1)?, r.try_get(2)?)))
+        })
+        .ok();
+
+    response
 }
 
 #[get("/articles/<id>")]
 pub async fn get_one_article(mut db: Connection<Articles>, id: &str) -> Option<Json<Article>> {
+    println!("{id}");
     let response = query("SELECT id, title, text FROM articles WHERE id=?")
         .bind(id)
         .fetch_one(&mut *db)
         .await
-        .and_then(|r| Ok(Json(Article::new(r.try_get(1)?, r.try_get(2)?))))
+        .and_then(|r| {
+            println!("{:?}", r.try_get(1)?);
+            Ok(Json(Article::new(r.try_get(1)?, r.try_get(2)?)))
+        })
         .ok();
     response
 }

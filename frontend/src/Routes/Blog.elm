@@ -10,6 +10,7 @@ import Url
 type alias Model =
     { key : Nav.Key
     , url : Url.Url
+    , slug : String
     }
 
 
@@ -39,11 +40,11 @@ update msg model =
             )
 
 
-init : Url.Url -> Nav.Key -> ( Model, Cmd Msg )
-init url key =
-    ( { key = key, url = url }, Cmd.none )
+init : String -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init slug url key =
+    ( { key = key, url = url, slug = slug }, Cmd.none )
 
 
 view : Model -> Html Msg
 view model =
-    h1 [] [ text "Blog" ]
+    h1 [] [ text ("Blog  " ++ model.slug) ]

@@ -25,11 +25,6 @@ type alias Model =
     }
 
 
-type Route
-    = HomeRoute
-    | BlogRoute
-
-
 type Msg
     = NoOp
     | UrlRequested Browser.UrlRequest
@@ -132,7 +127,7 @@ stepUrl url model =
                     (stepHome model (Home.init model.url model.key))
                     top
                 , map
-                    (\slug -> stepBlog model (Blog.init model.url model.key))
+                    (\slug -> stepBlog model (Blog.init slug model.url model.key))
                     (s "blog" </> string)
                 ]
     in
@@ -144,8 +139,3 @@ stepUrl url model =
             ( { model | page = NotFoundPage }
             , Cmd.none
             )
-
-
-route : Parser a b -> a -> Parser (b -> c) c
-route parser handler =
-    Parser.map handler parser
