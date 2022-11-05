@@ -2,12 +2,12 @@ module Routes.Home exposing (..)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav
-import Html exposing (a, footer, h1, header, main_, nav, text)
+import Html exposing (Html, a, footer, h1, header, main_, nav, text)
 import Html.Attributes exposing (class, href)
 import Url
 
 
-type alias HomeModel =
+type alias Model =
     { key : Nav.Key
     , url : Url.Url
     }
@@ -19,7 +19,7 @@ type Msg
     | UrlChanged Url.Url
 
 
-update : Msg -> HomeModel -> ( HomeModel, Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
@@ -39,23 +39,11 @@ update msg model =
             )
 
 
-init : () -> Url.Url -> Nav.Key -> ( HomeModel, Cmd Msg )
-init () url key =
+init : Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init url key =
     ( { key = key, url = url }, Cmd.none )
 
 
-view : HomeModel -> Document Msg
+view : Model -> Html Msg
 view model =
-    { title = "Blog"
-    , body =
-        [ header [ class "bg-blue-900 h-20" ]
-            [ nav [ class "flex justify-center items-center h-20" ]
-                [ a [ class "decoration-none text-white hover:text-gray-100 text-5xl", href "/home" ] [ text "Blog" ]
-                ]
-            ]
-        , main_ [ class "flex flex-col bg-blue-900" ]
-            [ h1 [] [ text "Blogs" ]
-            ]
-        , footer [] []
-        ]
-    }
+    h1 [] [ text "Home" ]

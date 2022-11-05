@@ -2,12 +2,12 @@ module Routes.Blog exposing (..)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav
-import Html exposing (a, footer, h1, header, main_, nav, text)
+import Html exposing (Html, a, footer, h1, header, main_, nav, text)
 import Html.Attributes exposing (class, href)
 import Url
 
 
-type alias BlogModel =
+type alias Model =
     { key : Nav.Key
     , url : Url.Url
     }
@@ -19,7 +19,7 @@ type Msg
     | UrlChanged Url.Url
 
 
-update : Msg -> BlogModel -> ( BlogModel, Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
@@ -39,23 +39,11 @@ update msg model =
             )
 
 
-init : () -> Url.Url -> Nav.Key -> ( BlogModel, Cmd Msg )
-init () url key =
+init : Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init url key =
     ( { key = key, url = url }, Cmd.none )
 
 
-view : BlogModel -> Document Msg
+view : Model -> Html Msg
 view model =
-    { title = "Blog"
-    , body =
-        [ header [ class "bg-blue-900 h-20" ]
-            [ nav [ class "flex justify-center items-center h-20" ]
-                [ a [ class "decoration-none text-white hover:text-gray-100 text-5xl", href "/home" ] [ text "Beeeeeeeeelog" ]
-                ]
-            ]
-        , main_ [ class "flex flex-col bg-blue-900" ]
-            [ h1 [] [ text "eeeeeeeeeeeeeee" ]
-            ]
-        , footer [] []
-        ]
-    }
+    h1 [] [ text "Blog" ]

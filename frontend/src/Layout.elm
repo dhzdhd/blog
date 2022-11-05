@@ -1,33 +1,33 @@
-module Layout exposing (view)
+module Layout exposing (Details, view)
 
 import Browser exposing (Document)
-import Html exposing (Html, footer, header)
+import Html exposing (Attribute, Html, div, footer, header)
+import Html.Attributes exposing (class, style)
 
 
-type Msg
-    = NoOp
+type alias Details msg =
+    { title : String
+    , child : Html msg
+    }
 
 
-type alias Model =
-    ()
-
-
-view : Model -> Html Msg -> Document Msg
-view model child =
-    { title = ""
+view : (a -> msg) -> Details a -> Browser.Document msg
+view toMsg details =
+    { title =
+        details.title
     , body =
-        [ viewHeader
-        , child
+        [ Html.map toMsg <|
+            div [ class "center" ] [ details.child ]
         , viewFooter
         ]
     }
 
 
-viewHeader : Html Msg
+viewHeader : Html msg
 viewHeader =
     header [] []
 
 
-viewFooter : Html Msg
+viewFooter : Html msg
 viewFooter =
     footer [] []

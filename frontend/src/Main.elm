@@ -1,27 +1,46 @@
 module Main exposing (main)
 
 import Browser exposing (Document)
+import Browser.Dom exposing (Error(..))
 import Browser.Navigation as Nav
-import Html exposing (a, footer, h1, header, main_, nav, text)
+import Html exposing (a, div, footer, h1, header, main_, nav, text)
 import Html.Attributes exposing (class, href)
+import Layout
+import Routes.Blog as Blog
+import Routes.Home as Home
 import Url
+import Url.Parser as Parser exposing ((</>), Parser, custom, fragment, map, oneOf, s, string, top)
+
+
+type Page
+    = NotFoundPage
+    | HomePage Home.Model
+    | BlogPage Blog.Model
 
 
 type alias Model =
     { key : Nav.Key
     , url : Url.Url
+    , page : Page
     }
+
+
+type Route
+    = HomeRoute
+    | BlogRoute
 
 
 type Msg
     = NoOp
     | UrlRequested Browser.UrlRequest
     | UrlChanged Url.Url
+    | HomeMsg Home.Msg
+    | BlogMsg Blog.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
+update message model =
+    case message of
         NoOp ->
             ( model, Cmd.none )
 
@@ -34,31 +53,48 @@ update msg model =
                     ( model, Nav.load href )
 
         UrlChanged url ->
-            ( { model | url = url }
-            , Cmd.none
-            )
+            stepUrl url model
+
+        HomeMsg homeMsg ->
+            case model.page of
+                HomePage homeModel ->
+                    stepHome model (Home.update homeMsg homeModel)
+
+                _ ->
+                    ( model, Cmd.none )
+
+        BlogMsg blogMsg ->
+            case model.page of
+                BlogPage blogModel ->
+                    stepBlog model (Blog.update blogMsg blogModel)
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
-init () url key =
-    ( { key = key, url = url }, Cmd.none )
+init _ url key =
+    stepUrl url
+        { key = key
+        , url = url
+        , page = NotFoundPage
+        }
 
 
-view : Model -> Document Msg
+view : Model -> Browser.Document Msg
 view model =
-    { title = "Blog"
-    , body =
-        [ header [ class "bg-blue-900 h-20" ]
-            [ nav [ class "flex justify-center items-center h-20" ]
-                [ a [ class "decoration-none text-white hover:text-gray-100 text-5xl", href "/blog" ] [ text "Blog" ]
-                ]
-            ]
-        , main_ [ class "flex flex-col bg-blue-900" ]
-            [ h1 [] [ text "Blogs" ]
-            ]
-        , footer [] []
-        ]
-    }
+    case model.page of
+        NotFoundPage ->
+            Layout.view never
+                { title = "Not Found"
+                , child = div [] []
+                }
+
+        HomePage homeModel ->
+            Layout.view HomeMsg { title = "", child = Home.view homeModel }
+
+        BlogPage blogModel ->
+            Layout.view BlogMsg { title = "", child = Blog.view blogModel }
 
 
 main : Program () Model Msg
@@ -71,3 +107,45 @@ main =
         , onUrlRequest = UrlRequested
         , onUrlChange = UrlChanged
         }
+
+
+stepHome : Model -> ( Home.Model, Cmd Home.Msg ) -> ( Model, Cmd Msg )
+stepHome model ( homeModel, cmds ) =
+    ( { model | page = HomePage homeModel }
+    , Cmd.map HomeMsg cmds
+    )
+
+
+stepBlog : Model -> ( Blog.Model, Cmd Blog.Msg ) -> ( Model, Cmd Msg )
+stepBlog model ( blogModel, cmds ) =
+    ( { model | page = BlogPage blogModel }
+    , Cmd.map BlogMsg cmds
+    )
+
+
+stepUrl : Url.Url -> Model -> ( Model, Cmd Msg )
+stepUrl url model =
+    let
+        parser =
+            oneOf
+                [ map
+                    (stepHome model (Home.init model.url model.key))
+                    top
+                , map
+                    (\slug -> stepBlog model (Blog.init model.url model.key))
+                    (s "blog" </> string)
+                ]
+    in
+    case Parser.parse parser url of
+        Just answer ->
+            answer
+
+        Nothing ->
+            ( { model | page = NotFoundPage }
+            , Cmd.none
+            )
+
+
+route : Parser a b -> a -> Parser (b -> c) c
+route parser handler =
+    Parser.map handler parser
