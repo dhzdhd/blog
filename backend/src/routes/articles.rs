@@ -6,13 +6,17 @@ use uuid::Uuid;
 
 #[get("/articles")]
 pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<Vec<Article>>> {
-    let response = query("SELECT id, title, text FROM articles WHERE id=?")
+    let response = query("SELECT id, title, content FROM articles")
         .fetch_all(&mut *db)
         .await
         .and_then(|r| {
             Ok(Json(
                 r.into_iter()
-                    .map(|r| Article::new(r.try_get(1).unwrap(), r.try_get(2).unwrap()))
+                    .map(|r| {
+                        let s: &str = r.try_get(1).unwrap();
+                        println!("{s}");
+                        Article::new(r.try_get(1).unwrap(), r.try_get(2).unwrap())
+                    })
                     .collect::<Vec<Article>>(),
             ))
             // Ok(Json(Article::new(r.try_get(1)?, r.try_get(2)?)))
@@ -25,7 +29,7 @@ pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<Vec<A
 #[get("/articles/<id>")]
 pub async fn get_one_article(mut db: Connection<Articles>, id: &str) -> Option<Json<Article>> {
     println!("{id}");
-    let response = query("SELECT id, title, text FROM articles WHERE id=?")
+    let response = query("SELECT id, title, content FROM articles WHERE id=$1")
         .bind(id)
         .fetch_one(&mut *db)
         .await
@@ -39,7 +43,7 @@ pub async fn get_one_article(mut db: Connection<Articles>, id: &str) -> Option<J
 
 #[post("/articles", format = "json", data = "<article>")]
 pub async fn post_one_article(mut db: Connection<Articles>, article: Json<Article>) -> String {
-    let response = query("INSERT INTO articles (id, title, content) VALUES (?, ?, ?)")
+    let response = query(r#"INSERT INTO articles(id, title, content) VALUES ($1, $2, $3)"#)
         .bind(Uuid::new_v4().to_string())
         .bind(article.0.title)
         .bind(article.0.content)
