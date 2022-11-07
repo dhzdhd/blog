@@ -46,4 +46,4 @@ init url key =
 
 view : Model -> Html Msg
 view model =
-    h1 [] [ text "Home" ]
+    h1 [ class "" ] [ text "Home" ]
