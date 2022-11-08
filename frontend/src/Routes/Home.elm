@@ -2,7 +2,7 @@ module Routes.Home exposing (..)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav
-import Html exposing (Html, a, footer, h1, header, main_, nav, text)
+import Html exposing (Html, a, div, footer, h1, h2, header, main_, nav, p, text)
 import Html.Attributes exposing (class, href)
 import Url
 
@@ -46,4 +46,25 @@ init url key =
 
 view : Model -> Html Msg
 view model =
-    h1 [ class "" ] [ text "Home" ]
+    main_ [ class "h-full flex flex-col p-2" ]
+        [ h1 [] []
+        , div [ class "grid-col-3 gap-5" ]
+            [ viewCard model
+            , viewCard model
+            , viewCard model
+            , viewCard model
+            ]
+        ]
+
+
+viewCard : Model -> Html Msg
+viewCard model =
+    div [ class "card w-96 bg-neutral shadow-xl" ]
+        [ div [ class "card-body" ]
+            [ h2 [ class "card-title" ] [ text "Test" ]
+            , p [] [ text "lorem ipsum" ]
+            , div [ class "card-actions justify-end" ]
+                [ div [ class "badge badge-outline" ] [ text "Tech" ]
+                ]
+            ]
+        ]
