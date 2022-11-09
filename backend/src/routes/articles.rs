@@ -1,3 +1,4 @@
+use crate::models::article::ArticleVec;
 use crate::{database::articles::Articles, models::article::Article};
 use rocket::serde::json::Json;
 use rocket_db_pools::sqlx::Row;
@@ -5,12 +6,12 @@ use rocket_db_pools::{sqlx::query, Connection};
 use uuid::Uuid;
 
 #[get("/articles")]
-pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<Vec<Article>>> {
+pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<ArticleVec>> {
     let response = query("SELECT id, title, content FROM articles")
         .fetch_all(&mut *db)
         .await
         .and_then(|r| {
-            Ok(Json(
+            Ok(Json(ArticleVec::new(
                 r.into_iter()
                     .map(|r| {
                         let s: &str = r.try_get(1).unwrap();
@@ -18,7 +19,7 @@ pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<Vec<A
                         Article::new(r.try_get(1).unwrap(), r.try_get(2).unwrap())
                     })
                     .collect::<Vec<Article>>(),
-            ))
+            )))
             // Ok(Json(Article::new(r.try_get(1)?, r.try_get(2)?)))
         })
         .ok();
