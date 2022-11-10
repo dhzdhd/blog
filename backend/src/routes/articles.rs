@@ -16,28 +16,17 @@ pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<Artic
                     .map(|r| {
                         let s: &str = r.try_get(1).unwrap();
                         println!("{s}");
-                        Article::new(r.try_get(1).unwrap(), r.try_get(2).unwrap())
+                        Article::new(
+                            r.try_get(0).unwrap(),
+                            r.try_get(1).unwrap(),
+                            r.try_get(2).unwrap(),
+                        )
                     })
                     .collect::<Vec<Article>>(),
             )))
         })
         .ok();
 
-    response
-}
-
-#[get("/articles/<id>")]
-pub async fn get_one_article(mut db: Connection<Articles>, id: &str) -> Option<Json<Article>> {
-    println!("{id}");
-    let response = query(r#"SELECT id, title, content FROM articles WHERE id = $1"#)
-        .bind(id)
-        .fetch_one(&mut *db)
-        .await
-        .and_then(|r| {
-            println!("{:?}", r.try_get(1)?);
-            Ok(Json(Article::new(r.try_get(1)?, r.try_get(2)?)))
-        })
-        .ok();
     response
 }
 
@@ -54,4 +43,36 @@ pub async fn post_one_article(mut db: Connection<Articles>, article: Json<Articl
         Ok(_) => "Successful".to_string(),
         Err(err) => err.to_string(),
     }
+}
+
+#[get("/articles/<id>")]
+pub async fn get_one_article(mut db: Connection<Articles>, id: &str) -> Option<Json<Article>> {
+    println!("{id}");
+    let response = query(r#"SELECT id, title, content FROM articles WHERE id = $1"#)
+        .bind(id)
+        .fetch_one(&mut *db)
+        .await
+        .and_then(|r| {
+            println!("{:?}", r.try_get(1)?);
+            Ok(Json(Article::new(
+                r.try_get(0)?,
+                r.try_get(1)?,
+                r.try_get(2)?,
+            )))
+        })
+        .ok();
+    response
+}
+
+#[delete("/articles/<id>")]
+pub async fn delete_one_article(mut db: Connection<Articles>, id: &str) -> Option<String> {
+    println!("id is {id}");
+    let response = query("DELETE FROM articles WHERE id = $1")
+        .bind(id)
+        .execute(&mut *db)
+        .await
+        .and_then(|_| Ok("Success".to_string()))
+        .ok();
+
+    response
 }

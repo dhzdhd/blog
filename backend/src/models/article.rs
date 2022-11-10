@@ -13,12 +13,17 @@ impl ArticleVec {
 
 #[derive(Serialize, Deserialize)]
 pub struct Article {
+    pub uid: String,
     pub title: String,
     pub content: String,
 }
 
 impl Article {
-    pub fn new(title: String, content: String) -> Self {
-        Self { title, content }
+    pub fn new(uid: String, title: String, content: String) -> Self {
+        Self {
+            uid,
+            title,
+            content,
+        }
     }
 }

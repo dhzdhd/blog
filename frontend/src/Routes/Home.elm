@@ -5,9 +5,8 @@ import Browser.Navigation as Nav
 import Html exposing (Html, a, div, footer, h1, h2, header, main_, nav, p, text)
 import Html.Attributes exposing (class, href)
 import Http
-import Json.Decode exposing (Decoder, field, list, map, map2, string)
+import Json.Decode exposing (Decoder, field, list, map, map3, string)
 import Json.Encode exposing (encode, object)
-import List exposing (map3)
 import Url exposing (Url)
 
 
@@ -30,7 +29,8 @@ type alias BlogPostList =
 
 
 type alias BlogPost =
-    { title : String
+    { uid : String
+    , title : String
     , content : String
     }
 
@@ -88,11 +88,14 @@ view model =
             div [ class "h-full w-full flex flex-col px-2 py-5 gap-5" ]
                 [ h1 [ class "text-2xl" ] [ text "All blogs" ]
                 , div [ class "grid gap-5" ]
-                    (List.map
-                        (\data ->
-                            viewCard data
-                        )
-                        posts.data
+                    (case posts.data of
+                        [] ->
+                            [ p [ class "text-2xl" ] [ text "No blogs posted yet!" ] ]
+
+                        _ ->
+                            List.map
+                                (\data -> viewCard data)
+                                posts.data
                     )
                 ]
 
@@ -128,7 +131,7 @@ view model =
 
 viewCard : BlogPost -> Html Msg
 viewCard data =
-    div [ class "card w-full bg-neutral shadow-xl hover:scale-[102%] duration-300" ]
+    div [ class "card pointer w-full bg-neutral shadow-xl hover:scale-[102%] duration-300" ]
         [ div [ class "card-body" ]
             [ h2 [ class "card-title" ] [ text data.title ]
             , p [] [ text data.content ]
@@ -155,6 +158,7 @@ blogPostListDecoder =
 
 blogPostDecoder : Decoder BlogPost
 blogPostDecoder =
-    map2 BlogPost
+    map3 BlogPost
+        (field "uid" string)
         (field "title" string)
         (field "content" string)
