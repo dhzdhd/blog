@@ -20,7 +20,6 @@ pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<Artic
                     })
                     .collect::<Vec<Article>>(),
             )))
-            // Ok(Json(Article::new(r.try_get(1)?, r.try_get(2)?)))
         })
         .ok();
 
@@ -30,7 +29,7 @@ pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<Artic
 #[get("/articles/<id>")]
 pub async fn get_one_article(mut db: Connection<Articles>, id: &str) -> Option<Json<Article>> {
     println!("{id}");
-    let response = query("SELECT id, title, content FROM articles WHERE id=$1")
+    let response = query(r#"SELECT id, title, content FROM articles WHERE id = $1"#)
         .bind(id)
         .fetch_one(&mut *db)
         .await

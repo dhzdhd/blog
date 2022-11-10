@@ -88,11 +88,12 @@ view model =
             div [ class "h-full w-full flex flex-col px-2 py-5 gap-5" ]
                 [ h1 [ class "text-2xl" ] [ text "All blogs" ]
                 , div [ class "grid gap-5" ]
-                    [ viewCard model
-                    , viewCard model
-                    , viewCard model
-                    , viewCard model
-                    ]
+                    (List.map
+                        (\data ->
+                            viewCard data
+                        )
+                        posts.data
+                    )
                 ]
 
         Loading ->
@@ -125,12 +126,12 @@ view model =
                         ]
 
 
-viewCard : Model -> Html Msg
-viewCard model =
+viewCard : BlogPost -> Html Msg
+viewCard data =
     div [ class "card w-full bg-neutral shadow-xl hover:scale-[102%] duration-300" ]
         [ div [ class "card-body" ]
-            [ h2 [ class "card-title" ] [ text "Test" ]
-            , p [] [ text "lorem ipsum" ]
+            [ h2 [ class "card-title" ] [ text data.title ]
+            , p [] [ text data.content ]
             , div [ class "card-actions justify-end" ]
                 [ div [ class "badge badge-outline" ] [ text "Tech" ]
                 ]
