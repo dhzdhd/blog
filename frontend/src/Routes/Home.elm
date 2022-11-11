@@ -1,13 +1,12 @@
 module Routes.Home exposing (..)
 
-import Browser exposing (Document)
+import Browser
 import Browser.Navigation as Nav
 import Html exposing (Html, a, div, footer, h1, h2, header, main_, nav, p, text)
 import Html.Attributes exposing (class, href)
 import Http
 import Json.Decode exposing (Decoder, field, list, map, map3, string)
-import Json.Encode exposing (encode, object)
-import Url exposing (Url)
+import Url
 
 
 type Option a
@@ -18,8 +17,7 @@ type Option a
 type alias Model =
     { key : Nav.Key
     , url : Url.Url
-    , posts : RequestState BlogPostList
-    , error : Option Http.Error
+    , posts : RequestState BlogPostList Http.Error
     }
 
 
@@ -42,8 +40,8 @@ type Msg
     | GotBlogPosts (Result Http.Error BlogPostList)
 
 
-type RequestState a
-    = Failure
+type RequestState a b
+    = Failure b
     | Loading
     | Success a
 
@@ -73,12 +71,12 @@ update msg model =
                     ( { model | posts = Success posts }, Cmd.none )
 
                 Err err ->
-                    ( { model | error = Some err, posts = Failure }, Cmd.none )
+                    ( { model | posts = Failure err }, Cmd.none )
 
 
 init : Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init url key =
-    ( { key = key, url = url, posts = Loading, error = None }, getAllBlogPosts )
+    ( { key = key, url = url, posts = Loading }, getAllBlogPosts )
 
 
 view : Model -> Html Msg
@@ -102,31 +100,26 @@ view model =
         Loading ->
             h1 [ class "text-2xl" ] [ text "Loading" ]
 
-        Failure ->
-            case model.error of
-                None ->
-                    h1 [ class "text-2xl" ] [ text "" ]
+        Failure err ->
+            h1 [ class "text-2xl" ]
+                [ text
+                    (case err of
+                        Http.BadUrl str ->
+                            str
 
-                Some errr ->
-                    h1 [ class "text-2xl" ]
-                        [ text
-                            (case errr of
-                                Http.BadUrl a ->
-                                    a
+                        Http.BadStatus resp ->
+                            "Status " ++ String.fromInt resp
 
-                                Http.BadStatus resp ->
-                                    String.fromInt resp
+                        Http.BadBody str ->
+                            str
 
-                                Http.BadBody str ->
-                                    str
+                        Http.NetworkError ->
+                            "Network Error"
 
-                                Http.NetworkError ->
-                                    "e"
-
-                                _ ->
-                                    "hi"
-                            )
-                        ]
+                        _ ->
+                            "Error!"
+                    )
+                ]
 
 
 viewCard : BlogPost -> Html Msg
