@@ -22,7 +22,7 @@ view toMsg url details =
         details.title
     , body =
         [ viewHeader url
-        , main_ [ class "h-full w-full max-w-[50rem] flex items-center justify-center overflow-scroll" ]
+        , main_ [ class "h-full w-full py-16 max-w-[50rem] flex items-center justify-center" ]
             [ Html.map toMsg <|
                 details.child
             ]
@@ -33,14 +33,12 @@ view toMsg url details =
 
 viewHeader : Url.Url -> Html msg
 viewHeader url =
-    header [ class "navbar max-w-[50rem] flex justify-between bg-dark-100" ]
+    header [ class "navbar fixed top-0 pt-4 max-w-[50rem] flex justify-between z-10" ]
         [ a [ href (Url.Builder.relative [ "/" ] []) ]
             [ button
-                [ classList
-                    [ ( "btn", True )
-                    , ( "btn-disabled", url.path == "/" )
-                    ]
-                , disabled (url.path == "/")
+                [ class "btn bg-accent text-white"
+
+                -- , disabled (url.path == "/")
                 ]
                 [ Filled.arrow_back 25 Inherit ]
             ]
@@ -54,7 +52,7 @@ viewHeader url =
 
 viewFooter : Html msg
 viewFooter =
-    footer [ class "footer max-w-[50rem] flex items-center justify-between px-2" ]
+    footer [ class "footer fixed bottom-0 pb-4 max-w-[50rem] flex items-center justify-between px-2 bg-base-100" ]
         [ p [] [ text "dhzdhd's Blog" ]
         , div [ class "flex gap-4 hover:-translate-y-1 duration-300" ]
             [ a

@@ -129,7 +129,7 @@ view model =
 viewCard : BlogPost -> Html Msg
 viewCard data =
     a [ href (Url.Builder.relative [ "blog", data.uid ] []) ]
-        [ div [ class "card pointer w-full bg-neutral shadow-xl hover:scale-[102%] duration-300" ]
+        [ div [ class "card pointer w-full bg-secondary text-base-primary shadow-xl hover:scale-[102%] duration-300 z-0" ]
             [ div [ class "card-body" ]
                 [ h2 [ class "card-title" ] [ text data.title ]
                 , p [] [ text data.content ]
