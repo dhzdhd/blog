@@ -59,6 +59,7 @@ pub fn rocket() -> _ {
                 routes::articles::get_one_article,
                 routes::articles::post_one_article,
                 routes::articles::delete_one_article,
+                routes::articles::update_one_article,
             ],
         )
         .register("/", catchers![not_found])

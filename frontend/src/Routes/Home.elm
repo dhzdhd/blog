@@ -7,6 +7,7 @@ import Html.Attributes exposing (class, href)
 import Http
 import Json.Decode exposing (Decoder, field, list, map, map3, string)
 import Url
+import Url.Builder
 
 
 type Option a
@@ -85,10 +86,13 @@ view model =
         Success posts ->
             div [ class "h-full w-full flex flex-col px-2 py-5 gap-5" ]
                 [ h1 [ class "text-2xl" ] [ text "All blogs" ]
-                , div [ class "grid gap-5" ]
+                , div [ class "grid gap-5 items-center" ]
                     (case posts.data of
                         [] ->
-                            [ p [ class "text-2xl" ] [ text "No blogs posted yet!" ] ]
+                            [ div [ class "flex items-center justify-center h-100" ]
+                                [ p [ class "text-2xl" ] [ text "No blogs posted yet!" ]
+                                ]
+                            ]
 
                         _ ->
                             List.map
@@ -124,12 +128,14 @@ view model =
 
 viewCard : BlogPost -> Html Msg
 viewCard data =
-    div [ class "card pointer w-full bg-neutral shadow-xl hover:scale-[102%] duration-300" ]
-        [ div [ class "card-body" ]
-            [ h2 [ class "card-title" ] [ text data.title ]
-            , p [] [ text data.content ]
-            , div [ class "card-actions justify-end" ]
-                [ div [ class "badge badge-outline" ] [ text "Tech" ]
+    a [ href (Url.Builder.relative [ "blog", data.uid ] []) ]
+        [ div [ class "card pointer w-full bg-neutral shadow-xl hover:scale-[102%] duration-300" ]
+            [ div [ class "card-body" ]
+                [ h2 [ class "card-title" ] [ text data.title ]
+                , p [] [ text data.content ]
+                , div [ class "card-actions justify-end" ]
+                    [ div [ class "badge badge-outline" ] [ text "Tech" ]
+                    ]
                 ]
             ]
         ]

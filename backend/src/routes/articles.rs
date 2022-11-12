@@ -3,12 +3,11 @@ use crate::{database::articles::Articles, models::article::Article};
 use rocket::serde::json::Json;
 use rocket_db_pools::sqlx::Row;
 use rocket_db_pools::{sqlx::query, Connection};
-use sqlx::postgres::PgRow;
 use uuid::Uuid;
 
 #[get("/articles")]
 pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<ArticleVec>> {
-    let response = query("SELECT id, title, content FROM articles")
+    query("SELECT id, title, content FROM articles")
         .fetch_all(&mut *db)
         .await
         .and_then(|r| {
@@ -26,9 +25,7 @@ pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<Artic
                     .collect::<Vec<Article>>(),
             )))
         })
-        .ok();
-
-    response
+        .ok()
 }
 
 #[post("/articles", format = "json", data = "<article>")]
@@ -48,7 +45,7 @@ pub async fn post_one_article(mut db: Connection<Articles>, article: Json<Articl
 
 #[get("/articles/<id>")]
 pub async fn get_one_article(mut db: Connection<Articles>, id: &str) -> Option<Json<Article>> {
-    let response = query(r#"SELECT * FROM articles WHERE id = $1"#)
+    query(r#"SELECT * FROM articles WHERE id = $1"#)
         .bind(id)
         .fetch_one(&mut *db)
         .await
@@ -59,14 +56,13 @@ pub async fn get_one_article(mut db: Connection<Articles>, id: &str) -> Option<J
                 r.try_get(2).unwrap(),
             )))
         })
-        .ok();
-    return response;
+        .ok()
 }
 
 #[delete("/articles/<id>")]
 pub async fn delete_one_article(mut db: Connection<Articles>, id: &str) -> Option<String> {
     println!("id is {id}");
-    let response = query("DELETE FROM articles WHERE id = $1")
+    query("DELETE FROM articles WHERE id = $1")
         .bind(id)
         .execute(&mut *db)
         .await
@@ -74,7 +70,23 @@ pub async fn delete_one_article(mut db: Connection<Articles>, id: &str) -> Optio
             0 => Err(sqlx::Error::RowNotFound),
             _ => Ok("Success".to_string()),
         })
-        .ok();
+        .ok()
+}
 
-    response
+#[patch("/articles", format = "json", data = "<article>")]
+pub async fn update_one_article(
+    mut db: Connection<Articles>,
+    article: Json<Article>,
+) -> Option<String> {
+    query("UPDATE articles SET title = $1 AND content = $2 where id = $3")
+        .bind(&article.title)
+        .bind(&article.content)
+        .bind(&article.uid)
+        .execute(&mut *db)
+        .await
+        .and_then(|r| match r.rows_affected() {
+            0 => Ok("Error".to_string()),
+            _ => Err(sqlx::Error::RowNotFound),
+        })
+        .ok()
 }

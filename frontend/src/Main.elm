@@ -81,15 +81,16 @@ view model =
     case model.page of
         NotFoundPage ->
             Layout.view never
+                model.url
                 { title = "Not Found"
-                , child = div [] []
+                , child = h1 [ class "text-2xl" ] [ text "404 Not Found" ]
                 }
 
         HomePage homeModel ->
-            Layout.view HomeMsg { title = "", child = Home.view homeModel }
+            Layout.view HomeMsg model.url { title = "Blog", child = Home.view homeModel }
 
         BlogPage blogModel ->
-            Layout.view BlogMsg { title = "", child = Blog.view blogModel }
+            Layout.view BlogMsg model.url { title = "Blog", child = Blog.view blogModel }
 
 
 main : Program () Model Msg
@@ -124,10 +125,10 @@ stepUrl url model =
         parser =
             oneOf
                 [ map
-                    (stepHome model (Home.init model.url model.key))
+                    (stepHome { model | url = url } (Home.init model.url model.key))
                     top
                 , map
-                    (\slug -> stepBlog model (Blog.init slug model.url model.key))
+                    (\slug -> stepBlog { model | url = url } (Blog.init slug model.url model.key))
                     (s "blog" </> string)
                 ]
     in
