@@ -42,8 +42,7 @@ viewHeader url =
                     ]
                 , disabled (url.path == "/")
                 ]
-                [ Filled.arrow_back 25 Inherit
-                ]
+                [ Filled.arrow_back 25 Inherit ]
             ]
         , div [ class "flex-none gap-2" ]
             [ div [ class "form-control" ]
@@ -57,7 +56,7 @@ viewFooter : Html msg
 viewFooter =
     footer [ class "footer max-w-[50rem] flex items-center justify-between px-2" ]
         [ p [] [ text "dhzdhd's Blog" ]
-        , div [ class "flex gap-4" ]
+        , div [ class "flex gap-4 hover:-translate-y-1 duration-300" ]
             [ a
                 [ href (Url.Builder.crossOrigin "https://github.com/dhzdhd/blog" [] [])
                 , target "blank_"
