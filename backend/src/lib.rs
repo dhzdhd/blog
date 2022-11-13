@@ -21,6 +21,7 @@ fn not_found() -> Value {
         "reason": "Resource was not found."
     })
 }
+
 pub struct CORS;
 
 #[rocket::async_trait]

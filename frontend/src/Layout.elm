@@ -56,7 +56,8 @@ viewFooter =
         [ p [] [ text "dhzdhd's Blog" ]
         , div [ class "flex gap-4 hover:-translate-y-1 duration-300" ]
             [ a
-                [ href (Url.Builder.crossOrigin "https://github.com/dhzdhd/blog" [] [])
+                [ href (Url.Builder
+                .crossOrigin "https://github.com/dhzdhd/blog" [] [])
                 , target "blank_"
                 ]
                 [ Octicons.markGithub (defaultOptions |> color "white") ]

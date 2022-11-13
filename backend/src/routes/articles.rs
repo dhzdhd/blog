@@ -1,5 +1,6 @@
 use crate::models::article::ArticleVec;
 use crate::{database::articles::Articles, models::article::Article};
+use chrono::Local;
 use rocket::serde::json::Json;
 use rocket_db_pools::sqlx::Row;
 use rocket_db_pools::{sqlx::query, Connection};
@@ -7,19 +8,18 @@ use uuid::Uuid;
 
 #[get("/articles")]
 pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<ArticleVec>> {
-    query("SELECT id, title, content FROM articles")
+    query("SELECT * FROM articles")
         .fetch_all(&mut *db)
         .await
         .and_then(|r| {
             Ok(Json(ArticleVec::new(
                 r.into_iter()
                     .map(|r| {
-                        let s: &str = r.try_get(1).unwrap();
-                        println!("{s}");
                         Article::new(
                             r.try_get(0).unwrap(),
                             r.try_get(1).unwrap(),
                             r.try_get(2).unwrap(),
+                            r.try_get(3).unwrap(),
                         )
                     })
                     .collect::<Vec<Article>>(),
@@ -30,12 +30,17 @@ pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<Artic
 
 #[post("/articles", format = "json", data = "<article>")]
 pub async fn post_one_article(mut db: Connection<Articles>, article: Json<Article>) -> String {
-    let response = query(r#"INSERT INTO articles(id, title, content) VALUES ($1, $2, $3)"#)
-        .bind(Uuid::new_v4().to_string())
-        .bind(article.0.title)
-        .bind(article.0.content)
-        .execute(&mut *db)
-        .await;
+    let response =
+        query(r#"INSERT INTO articles(id, title, content, created_at) VALUES ($1, $2, $3, $4)"#)
+            .bind(Uuid::new_v4().to_string())
+            .bind(article.0.title)
+            .bind(article.0.content)
+            .bind(match article.0.created_at {
+                Some(s) => s,
+                None => Local::now().date_naive(),
+            })
+            .execute(&mut *db)
+            .await;
 
     match response {
         Ok(_) => "Successful".to_string(),
@@ -54,6 +59,7 @@ pub async fn get_one_article(mut db: Connection<Articles>, id: &str) -> Option<J
                 r.try_get(0).unwrap(),
                 r.try_get(1).unwrap(),
                 r.try_get(2).unwrap(),
+                r.try_get(3).unwrap(),
             )))
         })
         .ok()
@@ -78,6 +84,7 @@ pub async fn update_one_article(
     mut db: Connection<Articles>,
     article: Json<Article>,
 ) -> Option<String> {
+    // ! add support for created_at
     query("UPDATE articles SET title = $1 AND content = $2 where id = $3")
         .bind(&article.title)
         .bind(&article.content)

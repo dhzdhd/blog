@@ -5,5 +5,5 @@ CREATE TABLE
         id VARCHAR PRIMARY KEY,
         title VARCHAR UNIQUE NOT NULL,
         content VARCHAR NOT NULL,
-        created DATE NOT NULL
+        created_at DATE NOT NULL DEFAULT CURRENT_DATE
     )
