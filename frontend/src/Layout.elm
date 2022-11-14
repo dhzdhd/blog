@@ -44,7 +44,12 @@ viewHeader url =
             ]
         , div [ class "flex-none gap-2" ]
             [ div [ class "form-control" ]
-                [ input [ class "input input-bordered input-base-100" ] []
+                [ div [ class "input-group" ]
+                    [ input [ class "input input-bordered input-accent input-base-100" ] []
+                    , button [ class "btn btn-square" ]
+                        [ Octicons.search (defaultOptions |> color "white")
+                        ]
+                    ]
                 ]
             ]
         ]

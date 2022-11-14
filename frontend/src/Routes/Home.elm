@@ -5,7 +5,7 @@ import Browser.Navigation as Nav
 import Html exposing (Html, a, div, footer, h1, h2, header, main_, nav, p, text)
 import Html.Attributes exposing (class, href)
 import Http
-import Json.Decode exposing (Decoder, field, list, map, map3, string)
+import Json.Decode exposing (Decoder, field, list, map, map3, map4, string)
 import Url
 import Url.Builder
 
@@ -31,6 +31,7 @@ type alias BlogPost =
     { uid : String
     , title : String
     , content : String
+    , createdAt : String
     }
 
 
@@ -135,6 +136,8 @@ viewCard data =
                 , p [] [ text data.content ]
                 , div [ class "card-actions justify-end" ]
                     [ div [ class "badge badge-outline" ] [ text "Tech" ]
+
+                    -- , p [] [ text data.createdAt ]
                     ]
                 ]
             ]
@@ -157,7 +160,8 @@ blogPostListDecoder =
 
 blogPostDecoder : Decoder BlogPost
 blogPostDecoder =
-    map3 BlogPost
+    map4 BlogPost
         (field "uid" string)
         (field "title" string)
         (field "content" string)
+        (field "created_at" string)
