@@ -80,15 +80,22 @@ view model =
                         |> Result.mapError deadEndsToString
                         |> Result.andThen (\ast -> Markdown.Renderer.render htmlRenderer ast)
             in
-            Html.div
-                [ Attr.class "" ]
-                (case md of
-                    Ok html ->
-                        html
+            Html.div [ Attr.class "flex flex-col gap-5 w-full h-full px-2 py-7" ]
+                [ Html.h1 [ Attr.class "text-5xl font-bold" ] [ text (post.title |> String.toUpper) ]
+                , Html.div [ Attr.class "flex justify-between" ]
+                    [ Html.span [] [ text post.createdAt ]
+                    , Html.span [ Attr.class "badge badge-outline justify-end" ] [ text "Tech" ]
+                    ]
+                , Html.hr [ Attr.class "bg-accent border-none h-[1px]" ] []
+                , Html.div []
+                    (case md of
+                        Ok html ->
+                            html
 
-                    Err str ->
-                        [ text str ]
-                )
+                        Err str ->
+                            [ text str ]
+                    )
+                ]
 
         Loading ->
             Html.h1 [ Attr.class "text-2xl" ] [ Html.text "Loading" ]
@@ -129,22 +136,22 @@ htmlRenderer =
         \{ level, children } ->
             case level of
                 Block.H1 ->
-                    Html.h1 [] children
+                    Html.h1 [ Attr.class "text-3xl" ] children
 
                 Block.H2 ->
-                    Html.h2 [] children
+                    Html.h2 [ Attr.class "text-2xl" ] children
 
                 Block.H3 ->
-                    Html.h3 [] children
+                    Html.h3 [ Attr.class "text-xl" ] children
 
                 Block.H4 ->
-                    Html.h4 [] children
+                    Html.h4 [ Attr.class "text-3xl" ] children
 
                 Block.H5 ->
-                    Html.h5 [] children
+                    Html.h5 [ Attr.class "text-2xl" ] children
 
                 Block.H6 ->
-                    Html.h6 [] children
+                    Html.h6 [ Attr.class "text-xl" ] children
     , paragraph = Html.p []
     , hardLineBreak = Html.br [] []
     , blockQuote = Html.blockquote []

@@ -4,6 +4,7 @@ import Browser
 import Html exposing (Attribute, Html, a, button, div, footer, header, input, main_, p, text)
 import Html.Attributes exposing (class, classList, disabled, href, target)
 import Material.Icons as Filled
+import Material.Icons.Outlined as Outlined
 import Material.Icons.Types exposing (Coloring(..))
 import Octicons exposing (color, defaultOptions)
 import Url
@@ -40,7 +41,7 @@ viewHeader url =
 
                 -- , disabled (url.path == "/")
                 ]
-                [ Filled.arrow_back 25 Inherit ]
+                [ Outlined.home 25 Inherit ]
             ]
         , div [ class "flex-none gap-2" ]
             [ div [ class "form-control" ]
