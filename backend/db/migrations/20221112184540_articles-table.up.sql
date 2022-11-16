@@ -4,6 +4,6 @@ CREATE TABLE
     articles (
         id VARCHAR PRIMARY KEY,
         title VARCHAR UNIQUE NOT NULL,
-        content VARCHAR NOT NULL,
+        content TEXT NOT NULL,
         created_at DATE NOT NULL DEFAULT CURRENT_DATE
     )

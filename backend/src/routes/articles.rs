@@ -1,6 +1,11 @@
+use std::fs;
+
 use crate::models::article::ArticleVec;
 use crate::{database::articles::Articles, models::article::Article};
-use chrono::Local;
+use chrono::{Local, NaiveDate};
+use rocket::figment::Error;
+use rocket::form::Form;
+use rocket::fs::TempFile;
 use rocket::serde::json::Json;
 use rocket_db_pools::sqlx::Row;
 use rocket_db_pools::{sqlx::query, Connection};
@@ -28,7 +33,7 @@ pub async fn get_all_articles(mut db: Connection<Articles>) -> Option<Json<Artic
         .ok()
 }
 
-#[post("/articles", format = "json", data = "<article>")]
+#[post("/articles", format = "json", data = "<article>", rank = 1)]
 pub async fn post_one_article(mut db: Connection<Articles>, article: Json<Article>) -> String {
     let response =
         query(r#"INSERT INTO articles(id, title, content, created_at) VALUES ($1, $2, $3, $4)"#)
@@ -41,6 +46,40 @@ pub async fn post_one_article(mut db: Connection<Articles>, article: Json<Articl
             })
             .execute(&mut *db)
             .await;
+
+    match response {
+        Ok(_) => "Successful".to_string(),
+        Err(err) => err.to_string(),
+    }
+}
+
+#[derive(FromForm)]
+pub struct ArticleForm<'r> {
+    // ! Add date
+    file: TempFile<'r>,
+    pub uid: String,
+    pub title: String,
+}
+
+#[post("/articles", data = "<form>", rank = 2)]
+pub async fn post_one_article_with_file(
+    mut db: Connection<Articles>,
+    mut form: Form<ArticleForm<'_>>,
+) -> String {
+    let uuid = Uuid::new_v4();
+    let file_path = format!("/tmp/{uuid}");
+    form.file.persist_to(&file_path).await.unwrap();
+
+    let content = fs::read(&file_path).unwrap();
+
+    fs::remove_file(&file_path).unwrap();
+
+    let response = query(r#"INSERT INTO articles(id, title, content) VALUES ($1, $2, $3)"#)
+        .bind(Uuid::new_v4().to_string())
+        .bind(&form.title)
+        .bind(content)
+        .execute(&mut *db)
+        .await;
 
     match response {
         Ok(_) => "Successful".to_string(),

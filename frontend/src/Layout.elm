@@ -1,9 +1,8 @@
 module Layout exposing (Details, view)
 
 import Browser
-import Html exposing (Attribute, Html, a, button, div, footer, header, input, main_, p, text)
+import Html exposing (Html, a, button, div, footer, header, input, main_, p, text)
 import Html.Attributes exposing (class, classList, disabled, href, target)
-import Material.Icons as Filled
 import Material.Icons.Outlined as Outlined
 import Material.Icons.Types exposing (Coloring(..))
 import Octicons exposing (color, defaultOptions)
