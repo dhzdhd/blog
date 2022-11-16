@@ -133,11 +133,9 @@ viewCard data =
         [ div [ class "card pointer w-full bg-secondary text-base-primary shadow-xl hover:scale-[102%] duration-300 z-0" ]
             [ div [ class "card-body" ]
                 [ h2 [ class "card-title" ] [ text data.title ]
-                , p [] [ text data.content ]
                 , div [ class "card-actions justify-end" ]
-                    [ div [ class "badge badge-outline" ] [ text "Tech" ]
-
-                    -- , p [] [ text data.createdAt ]
+                    [ p [] [ text data.createdAt ]
+                    , div [ class "badge badge-outline justify-end" ] [ text "Tech" ]
                     ]
                 ]
             ]

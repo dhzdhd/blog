@@ -1,12 +1,17 @@
 module Routes.Blog exposing (..)
 
-import Browser exposing (Document)
+import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, a, div, footer, h1, header, main_, nav, text)
-import Html.Attributes exposing (class, href)
+import Html exposing (Html, text)
+import Html.Attributes as Attr
 import Http
+import Markdown.Block as Block
+import Markdown.Html
+import Markdown.Parser
+import Markdown.Renderer
 import Routes.Home exposing (BlogPost, RequestState(..), blogPostDecoder)
 import Url
+import Url.Parser exposing (Parser)
 
 
 type alias Model =
@@ -57,19 +62,40 @@ init slug url key =
     ( { key = key, url = url, slug = slug, post = Loading }, getBlogPost slug )
 
 
+deadEndsToString deadEnds =
+    -- ! Add annotation
+    deadEnds
+        |> List.map Markdown.Parser.deadEndToString
+        |> String.join "\n"
+
+
 view : Model -> Html Msg
 view model =
     case model.post of
         Success post ->
-            div [ class "" ]
-                [ text post.content ]
+            let
+                md =
+                    post.content
+                        |> Markdown.Parser.parse
+                        |> Result.mapError deadEndsToString
+                        |> Result.andThen (\ast -> Markdown.Renderer.render htmlRenderer ast)
+            in
+            Html.div
+                [ Attr.class "" ]
+                (case md of
+                    Ok html ->
+                        html
+
+                    Err str ->
+                        [ text str ]
+                )
 
         Loading ->
-            h1 [ class "text-2xl" ] [ text "Loading" ]
+            Html.h1 [ Attr.class "text-2xl" ] [ Html.text "Loading" ]
 
         Failure err ->
-            h1 [ class "text-2xl" ]
-                [ text
+            Html.h1 [ Attr.class "text-2xl" ]
+                [ Html.text
                     (case err of
                         Http.BadUrl str ->
                             str
@@ -95,3 +121,155 @@ getBlogPost slug =
         { url = "http://127.0.0.1:8000/api/v1/articles/" ++ slug
         , expect = Http.expectJson GotBlogPost blogPostDecoder
         }
+
+
+htmlRenderer : Markdown.Renderer.Renderer (Html msg)
+htmlRenderer =
+    { heading =
+        \{ level, children } ->
+            case level of
+                Block.H1 ->
+                    Html.h1 [] children
+
+                Block.H2 ->
+                    Html.h2 [] children
+
+                Block.H3 ->
+                    Html.h3 [] children
+
+                Block.H4 ->
+                    Html.h4 [] children
+
+                Block.H5 ->
+                    Html.h5 [] children
+
+                Block.H6 ->
+                    Html.h6 [] children
+    , paragraph = Html.p []
+    , hardLineBreak = Html.br [] []
+    , blockQuote = Html.blockquote []
+    , strong =
+        \children -> Html.strong [] children
+    , emphasis =
+        \children -> Html.em [] children
+    , codeSpan =
+        \content -> Html.code [] [ Html.text content ]
+    , link =
+        \link content ->
+            case link.title of
+                Just title ->
+                    Html.a
+                        [ Attr.href link.destination
+                        , Attr.title title
+                        ]
+                        content
+
+                Nothing ->
+                    Html.a [ Attr.href link.destination ] content
+    , image =
+        \imageInfo ->
+            case imageInfo.title of
+                Just title ->
+                    Html.img
+                        [ Attr.src imageInfo.src
+                        , Attr.alt imageInfo.alt
+                        , Attr.title title
+                        ]
+                        []
+
+                Nothing ->
+                    Html.img
+                        [ Attr.src imageInfo.src
+                        , Attr.alt imageInfo.alt
+                        ]
+                        []
+    , text =
+        Html.text
+    , unorderedList =
+        \items ->
+            Html.ul []
+                (items
+                    |> List.map
+                        (\item ->
+                            case item of
+                                Block.ListItem task children ->
+                                    let
+                                        checkbox =
+                                            case task of
+                                                Block.NoTask ->
+                                                    Html.text ""
+
+                                                Block.IncompleteTask ->
+                                                    Html.input
+                                                        [ Attr.disabled True
+                                                        , Attr.checked False
+                                                        , Attr.type_ "checkbox"
+                                                        ]
+                                                        []
+
+                                                Block.CompletedTask ->
+                                                    Html.input
+                                                        [ Attr.disabled True
+                                                        , Attr.checked True
+                                                        , Attr.type_ "checkbox"
+                                                        ]
+                                                        []
+                                    in
+                                    Html.li [] (checkbox :: children)
+                        )
+                )
+    , orderedList =
+        \startingIndex items ->
+            Html.ol
+                (case startingIndex of
+                    1 ->
+                        [ Attr.start startingIndex ]
+
+                    _ ->
+                        []
+                )
+                (items
+                    |> List.map
+                        (\itemBlocks ->
+                            Html.li []
+                                itemBlocks
+                        )
+                )
+    , html = Markdown.Html.oneOf []
+    , codeBlock =
+        \block ->
+            Html.pre []
+                [ Html.code []
+                    [ Html.text block.body
+                    ]
+                ]
+    , thematicBreak = Html.hr [] []
+    , table = Html.table []
+    , tableHeader = Html.thead []
+    , tableBody = Html.tbody []
+    , tableRow = Html.tr []
+    , tableHeaderCell =
+        \maybeAlignment ->
+            let
+                attrs =
+                    maybeAlignment
+                        |> Maybe.map
+                            (\alignment ->
+                                case alignment of
+                                    Block.AlignLeft ->
+                                        "left"
+
+                                    Block.AlignCenter ->
+                                        "center"
+
+                                    Block.AlignRight ->
+                                        "right"
+                            )
+                        |> Maybe.map Attr.align
+                        |> Maybe.map List.singleton
+                        |> Maybe.withDefault []
+            in
+            Html.th attrs
+    , tableCell = \_ children -> Html.td [] children
+    , strikethrough = Html.span [ Attr.style "text-decoration-line" "line-through" ]
+    }
