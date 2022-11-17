@@ -67,10 +67,11 @@ pub async fn post_one_article_with_file(
     mut form: Form<ArticleForm<'_>>,
 ) -> String {
     let uuid = Uuid::new_v4();
-    let file_path = format!("/tmp/{uuid}");
+    // ! Decide file path for windows and unix
+    let file_path = format!("file_path/{uuid}");
     form.file.persist_to(&file_path).await.unwrap();
 
-    let content = fs::read(&file_path).unwrap();
+    let content = fs::read_to_string(&file_path).unwrap();
 
     fs::remove_file(&file_path).unwrap();
 
