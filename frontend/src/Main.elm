@@ -22,6 +22,7 @@ type alias Model =
     { key : Nav.Key
     , url : Url.Url
     , page : Page
+    , searchContent : String
     }
 
 
@@ -31,6 +32,7 @@ type Msg
     | UrlChanged Url.Url
     | HomeMsg Home.Msg
     | BlogMsg Blog.Msg
+    | SetSearchContent String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -66,6 +68,9 @@ update message model =
                 _ ->
                     ( model, Cmd.none )
 
+        SetSearchContent string ->
+            ( { model | searchContent = string }, Cmd.none )
+
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
@@ -73,6 +78,7 @@ init _ url key =
         { key = key
         , url = url
         , page = NotFoundPage
+        , searchContent = ""
         }
 
 
@@ -80,17 +86,27 @@ view : Model -> Browser.Document Msg
 view model =
     case model.page of
         NotFoundPage ->
-            Layout.view never
+            Layout.view
+                never
+                SetSearchContent
                 model.url
                 { title = "Not Found"
                 , child = h1 [ class "text-2xl" ] [ text "404 Not Found" ]
                 }
 
         HomePage homeModel ->
-            Layout.view HomeMsg model.url { title = "Blog", child = Home.view homeModel }
+            Layout.view
+                HomeMsg
+                SetSearchContent
+                model.url
+                { title = "Blog", child = Home.view homeModel }
 
         BlogPage blogModel ->
-            Layout.view BlogMsg model.url { title = "Blog", child = Blog.view blogModel }
+            Layout.view
+                BlogMsg
+                SetSearchContent
+                model.url
+                { title = "Blog", child = Blog.view blogModel }
 
 
 main : Program () Model Msg
@@ -125,7 +141,7 @@ stepUrl url model =
         parser =
             oneOf
                 [ map
-                    (stepHome { model | url = url } (Home.init model.url model.key))
+                    (stepHome { model | url = url } (Home.init model.url model.key model.searchContent))
                     top
                 , map
                     (\slug -> stepBlog { model | url = url } (Blog.init slug model.url model.key))

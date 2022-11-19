@@ -2,10 +2,11 @@ module Routes.Home exposing (..)
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, a, div, footer, h1, h2, header, main_, nav, p, text)
+import Html exposing (Html, a, div, footer, h1, h2, header, main_, nav, ol, p, text)
 import Html.Attributes exposing (class, href)
 import Http
 import Json.Decode exposing (Decoder, field, list, map, map3, map4, string)
+import Material.Icons exposing (search)
 import Url
 import Url.Builder
 
@@ -19,6 +20,7 @@ type alias Model =
     { key : Nav.Key
     , url : Url.Url
     , posts : RequestState BlogPostList Http.Error
+    , searchContent : String
     }
 
 
@@ -63,9 +65,7 @@ update msg model =
                     ( model, Nav.load href )
 
         UrlChanged url ->
-            ( { model | url = url }
-            , Cmd.none
-            )
+            ( { model | url = url }, Cmd.none )
 
         GotBlogPosts result ->
             case result of
@@ -76,9 +76,9 @@ update msg model =
                     ( { model | posts = Failure err }, Cmd.none )
 
 
-init : Url.Url -> Nav.Key -> ( Model, Cmd Msg )
-init url key =
-    ( { key = key, url = url, posts = Loading }, getAllBlogPosts )
+init : Url.Url -> Nav.Key -> String -> ( Model, Cmd Msg )
+init url key searchContent =
+    ( { key = key, url = url, posts = Loading, searchContent = searchContent }, getAllBlogPosts )
 
 
 view : Model -> Html Msg
@@ -96,9 +96,14 @@ view model =
                             ]
 
                         _ ->
-                            List.map
-                                (\data -> viewCard data)
-                                posts.data
+                            case model.searchContent of
+                                "" ->
+                                    List.map
+                                        (\data -> viewCard data)
+                                        posts.data
+
+                                _ ->
+                                    [ div [] [ text "e" ] ]
                     )
                 ]
 

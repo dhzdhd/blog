@@ -2,7 +2,8 @@ module Layout exposing (Details, view)
 
 import Browser
 import Html exposing (Html, a, button, div, footer, header, input, main_, p, text)
-import Html.Attributes exposing (class, classList, disabled, href, target)
+import Html.Attributes exposing (class, href, target)
+import Html.Events exposing (onFocus, onInput)
 import Material.Icons.Outlined as Outlined
 import Material.Icons.Types exposing (Coloring(..))
 import Octicons exposing (color, defaultOptions)
@@ -16,12 +17,12 @@ type alias Details msg =
     }
 
 
-view : (a -> msg) -> Url.Url -> Details a -> Browser.Document msg
-view toMsg url details =
+view : (a -> msg) -> (String -> msg) -> Url.Url -> Details a -> Browser.Document msg
+view toMsg msg url details =
     { title =
         details.title
     , body =
-        [ viewHeader url
+        [ viewHeader url msg
         , main_ [ class "h-full w-full py-16 max-w-[50rem] flex items-center justify-center" ]
             [ Html.map toMsg <|
                 details.child
@@ -31,8 +32,8 @@ view toMsg url details =
     }
 
 
-viewHeader : Url.Url -> Html msg
-viewHeader url =
+viewHeader : Url.Url -> (String -> msg) -> Html msg
+viewHeader url msg =
     header [ class "navbar fixed top-0 pt-4 max-w-[50rem] flex justify-between z-10" ]
         [ a [ href (Url.Builder.relative [ "/" ] []) ]
             [ button
@@ -45,7 +46,11 @@ viewHeader url =
         , div [ class "flex-none gap-2" ]
             [ div [ class "form-control" ]
                 [ div [ class "input-group" ]
-                    [ input [ class "input input-bordered input-accent input-base-100" ] []
+                    [ input
+                        [ class "input input-bordered input-accent input-base-100"
+                        , onInput (\s -> msg s)
+                        ]
+                        []
                     , button [ class "btn btn-square" ]
                         [ Octicons.search (defaultOptions |> color "white")
                         ]
