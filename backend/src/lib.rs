@@ -50,7 +50,7 @@ pub fn rocket() -> _ {
         .attach(database::articles::Articles::init())
         .attach(AdHoc::try_on_ignite(
             "SQLx Migrations",
-            database::articles::run_migrations,
+            database::migrate::run_migrations,
         ))
         .mount(
             "/api/v1",

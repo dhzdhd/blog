@@ -2,8 +2,7 @@ use std::fs;
 
 use crate::models::article::ArticleVec;
 use crate::{database::articles::Articles, models::article::Article};
-use chrono::{Local, NaiveDate};
-use rocket::figment::Error;
+use chrono::Local;
 use rocket::form::Form;
 use rocket::fs::TempFile;
 use rocket::serde::json::Json;
@@ -72,7 +71,6 @@ pub async fn post_one_article_with_file(
     form.file.persist_to(&file_path).await.unwrap();
 
     let content = fs::read_to_string(&file_path).unwrap();
-
     fs::remove_file(&file_path).unwrap();
 
     let response = query(r#"INSERT INTO articles(id, title, content) VALUES ($1, $2, $3)"#)
