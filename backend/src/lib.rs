@@ -48,6 +48,7 @@ impl Fairing for CORS {
 pub fn rocket() -> _ {
     rocket::build()
         .attach(database::articles::Articles::init())
+        .attach(database::users::Users::init())
         .attach(AdHoc::try_on_ignite(
             "SQLx Migrations",
             database::migrate::run_migrations,

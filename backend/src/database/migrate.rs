@@ -15,6 +15,9 @@ pub async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
                 Err(rocket)
             }
         },
-        None => Err(rocket),
+        None => {
+            error!("Failed to initialize SQLx Postgres database");
+            Err(rocket)
+        }
     }
 }
