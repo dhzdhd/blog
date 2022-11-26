@@ -46,25 +46,34 @@ impl Fairing for CORS {
 
 #[launch]
 pub fn rocket() -> _ {
-    rocket::build()
-        .attach(database::articles::Articles::init())
-        .attach(database::users::Users::init())
-        .attach(AdHoc::try_on_ignite(
-            "SQLx Migrations",
-            database::migrate::run_migrations,
-        ))
-        .mount(
-            "/api/v1",
-            routes![
-                routes::index::index,
-                routes::articles::get_all_articles,
-                routes::articles::get_one_article,
-                routes::articles::post_one_article,
-                routes::articles::post_one_article_with_file,
-                routes::articles::delete_one_article,
-                routes::articles::update_one_article,
-            ],
-        )
-        .register("/", catchers![not_found])
-        .attach(CORS)
+    rocket::custom(rocket::Config::figment().merge((
+        "databases.blog",
+        rocket_db_pools::Config {
+            url: "postgres://postgres:postgres@localhost:5432/blog".into(),
+            min_connections: None,
+            max_connections: 1024,
+            connect_timeout: 3,
+            idle_timeout: None,
+        },
+    )))
+    .attach(database::articles::Articles::init())
+    .attach(database::users::Users::init())
+    .attach(AdHoc::try_on_ignite(
+        "SQLx Migrations",
+        database::migrate::run_migrations,
+    ))
+    .mount(
+        "/api/v1",
+        routes![
+            routes::index::index,
+            routes::articles::get_all_articles,
+            routes::articles::get_one_article,
+            routes::articles::post_one_article,
+            routes::articles::post_one_article_with_file,
+            routes::articles::delete_one_article,
+            routes::articles::update_one_article,
+        ],
+    )
+    .register("/", catchers![not_found])
+    .attach(CORS)
 }
