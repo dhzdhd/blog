@@ -1,11 +1,12 @@
 module Pages.Home_ exposing (view)
 
+import Browser exposing (Document)
 import Html
-import View exposing (View)
+import Html.Attributes exposing (class)
 
 
-view : View msg
+view : Document msg
 view =
     { title = "Homepage"
-    , body = [ Html.text "Hello, world!" ]
+    , body = [ Html.span [ class "text-3xl bg-red-600" ] [ Html.text "Hello" ] ]
     }

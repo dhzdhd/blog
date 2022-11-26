@@ -1,0 +1,24 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "format": "elm-format ./src/",
+    "lint": "npx elm-review --template jfmengels/elm-review-unused/example --fix-all"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "elm-review": "^2.8.2",
+    "vite": "^3.1.8",
+    "vite-plugin-elm": "^2.7.2",
+    "autoprefixer": "^10.4.13",
+    "postcss": "^8.4.18"
+  },
+  "dependencies": {
+    "daisyui": "^2.38.1"
+  }
+}
