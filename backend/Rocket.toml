@@ -1,2 +1,2 @@
 [default.databases.blog]
-url = "postgres://postgres:postgres@localhost:5432/blog"
+url = "postgres://postgres:postgres@0.0.0.0:5432/blog"
