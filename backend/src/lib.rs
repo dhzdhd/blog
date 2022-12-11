@@ -49,7 +49,7 @@ pub fn rocket() -> _ {
     rocket::custom(rocket::Config::figment().merge((
         "databases.blog",
         rocket_db_pools::Config {
-            url: "postgres://postgres:postgres@0.0.0.0:5432/blog".into(),
+            url: "postgres://postgres:postgres@localhost:5432/blog".into(),
             min_connections: None,
             max_connections: 1024,
             connect_timeout: 30,
