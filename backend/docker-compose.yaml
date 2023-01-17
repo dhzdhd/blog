@@ -3,35 +3,37 @@ version: '3.9'
 services:
   database:
     image: postgres:15
+    container_name:
+      postgres
+
     restart: on-failure
-    environment:
-      POSTGRES_DB: blog
-      POSTGRES_USER: blog
-      POSTGRES_PASSWORD: blog
+
+    env_file:
+      - .env
 
     ports:
-      - 0.0.0.0:5432:5432
+      - 5432:5432
 
-    # volumes:
-    #   - /var/lib/db:/var/lib/postgresql/data
+    volumes:
+      - /var/lib/db:/var/lib/postgresql/data
 
   blog:
     build:
       context: .
       dockerfile: Dockerfile
 
+    container_name:
+      blog
+
     restart: on-failure
 
     env_file:
       - .env
-    environment:
-      ENVIRONMENT: DOCKER-DEVELOPMENT
-      DATABASE_URL: postgres://blog:blog@postgres:5432/blog
-
-    network_mode: host
+    # environment:
+    #   ENVIRONMENT: DOCKER-DEVELOPMENT
 
     ports:
-      - 0.0.0.0:8000:8000
+      - 8000:8000
 
     depends_on:
       - database
